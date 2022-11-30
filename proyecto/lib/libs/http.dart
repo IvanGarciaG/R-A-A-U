@@ -3,7 +3,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ManagerHttp {
-  static String url = 'http://raau.000webhostapp.com/';
+  static String url = 'http://44.205.104.168/raau/';
+  //static String url = 'http://192.168.10.176/raau/';
   static String key =
       "75e36d4ef6f1172c8a2c61a8792e57e957dee9a7d03db1ebe750c3a0bcd650ee";
 

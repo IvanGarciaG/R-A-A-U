@@ -12,15 +12,15 @@ class PageRegister extends StatefulWidget {
 class _register extends State<PageRegister> {
   @override
   Widget build(BuildContext context) {
-    Map<String,TextEditingController> controllers={
+    Map<String, TextEditingController> controllers = {
       'name': TextEditingController(),
       'surname': TextEditingController(),
-      'user' : TextEditingController(),
-      'email':TextEditingController(),
-      'password':TextEditingController()
+      'user': TextEditingController(),
+      'email': TextEditingController(),
+      'password': TextEditingController()
     };
 
-   return SafeArea(
+    return SafeArea(
       child: Scaffold(
         body: Center(
           child: Column(
@@ -34,12 +34,12 @@ class _register extends State<PageRegister> {
               ),
               formWidget.name(controllers['name']),
               SizedBox(
-                height: 25.0,
+                height: 15.0,
                 width: 10.0,
               ),
               formWidget.last_name(controllers['surname']),
               SizedBox(
-                height: 10.0,
+                height: 15.0,
               ),
               formWidget.user(controllers['user']),
               SizedBox(

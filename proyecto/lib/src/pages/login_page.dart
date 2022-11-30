@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:proyecto/src/pages/publication.dart';
 
+import '../../libs/session.dart';
 import 'form.dart';
 
 class LoginPage extends StatefulWidget {
@@ -12,10 +14,11 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
-    Map<String,TextEditingController> controllers={
-      'email':TextEditingController(),
-      'password':TextEditingController()
+    Map<String, TextEditingController> controllers = {
+      'user': TextEditingController(),
+      'password': TextEditingController()
     };
+    obtenerSession();
     return SafeArea(
       child: Scaffold(
         body: Center(
@@ -31,7 +34,7 @@ class _LoginPageState extends State<LoginPage> {
               SizedBox(
                 height: 15.0,
               ),
-              formWidget.email(controllers['email']),
+              formWidget.user(controllers['user']),
               SizedBox(
                 height: 15,
               ),
@@ -49,5 +52,15 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
     );
+  }
+
+  obtenerSession() async {
+    var json = await Session.obtener();
+    if ((json[0]['session'] ?? null) != null) {
+      Navigator.of(context).pop();
+      Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) => pagePublication(),
+      ));
+    }
   }
 }

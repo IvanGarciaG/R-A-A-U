@@ -13,12 +13,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return MaterialApp(
       title: "RAUU",
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        body:agenda_page(),
+        body: LoginPage(),
       ),
     );
   }

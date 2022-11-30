@@ -8,10 +8,11 @@ class agenda_page extends StatefulWidget {
 }
 
 class _agenda_pageState extends State<agenda_page> {
-
-    late DateTime SelectDay;
+  late DateTime SelectDay;
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return Center(
+      child: Text('Proximamente ...'),
+    );
   }
 }
