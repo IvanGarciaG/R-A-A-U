@@ -12,6 +12,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  var message = null;
   @override
   Widget build(BuildContext context) {
     Map<String, TextEditingController> controllers = {
@@ -42,11 +43,16 @@ class _LoginPageState extends State<LoginPage> {
               SizedBox(
                 height: 20.0,
               ),
-              formWidget.btn_login(controllers),
+              Text(message ?? ""),
+              (message == "Iniciando sesión...")
+                  ? Text("")
+                  : formWidget.btn_login(controllers, this),
               SizedBox(
                 height: 20.0,
               ),
-              formWidget.btn_pag_register(controllers)
+              (message == "Iniciando sesión...")
+                  ? Text("")
+                  : formWidget.btn_pag_register(controllers)
             ],
           ),
         ),

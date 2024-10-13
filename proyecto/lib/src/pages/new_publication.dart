@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:async';
 
@@ -38,15 +39,17 @@ class _PageNewPublication extends State<PageNewPublication> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
+        padding: EdgeInsets.symmetric(horizontal: 10.0),
         child: Column(
           children: [
             Container(
                 padding: EdgeInsets.all(15),
                 child: TextField(
                   keyboardType: TextInputType.multiline,
+                  maxLines: null,
                   decoration: InputDecoration(
                       labelText: "Ingrese una descripción",
-                      contentPadding: EdgeInsets.only(),
+                      contentPadding: EdgeInsets.all(10),
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(5.0))),
                   maxLength: 255,
@@ -56,36 +59,50 @@ class _PageNewPublication extends State<PageNewPublication> {
               height: 15.0,
             ),
             // enviar al servidor web
-            ElevatedButton(
-                child: Text("Publicar"),
-                onPressed: () async {
-                  setState(() {
-                    message = "";
-                  });
-                  _enviarform();
-                }),
+            message == "Publicando..."
+                ? CircularProgressIndicator()
+                : ElevatedButton(
+                    child: Text("Publicar"),
+                    onPressed: () async {
+                      setState(() {
+                        message = "";
+                      });
+                      _enviarform();
+                    }),
             SizedBox(
-              height: 30.0,
+              height: 20.0,
             ),
-
-            SizedBox(
-              height: 15.0,
-            ),
-            ElevatedButton(
-                child: Text("Seleccionar imagen"),
-                onPressed: () async {
-                  seleImagen(0);
-                }),
+            Text(message),
             SizedBox(
               height: 15.0,
             ),
-            ElevatedButton(
-                child: Text("Tomar una foto"),
-                onPressed: () async {
-                  seleImagen(1);
-                }),
-            message == "" ? CircularProgressIndicator() : Text(message),
-            image == null ? Center() : Image.file(image!),
+            message == "Publicando..."
+                ? Text("")
+                : ElevatedButton(
+                    child: Text("Seleccionar imagen"),
+                    onPressed: () async {
+                      seleImagen(0);
+                    }),
+            SizedBox(
+              height: 15.0,
+            ),
+            message == "Publicando..."
+                ? Text("")
+                : ElevatedButton(
+                    child: Text("Tomar una foto"),
+                    onPressed: () async {
+                      seleImagen(1);
+                    }),
+            image == null
+                ? Center()
+                : Container(
+                    child: Image.file(
+                      image!,
+                      fit: BoxFit.scaleDown,
+                      height: MediaQuery.of(context).size.height * 0.50,
+                    ),
+                    height: MediaQuery.of(context).size.height * 0.50,
+                  )
           ],
         ),
       ),
@@ -94,7 +111,7 @@ class _PageNewPublication extends State<PageNewPublication> {
 
   void _enviarform() async {
     setState(() {
-      message = "";
+      message = "Publicando...";
     });
     var json = await Session.obtener();
     var rs;
@@ -102,16 +119,29 @@ class _PageNewPublication extends State<PageNewPublication> {
       rs = await ManagerHttp.post("publication/create",
           {"session": json[0]['session'], "description": _description.text});
     } else {
-      rs = new http.MultipartRequest(
-          "POST", Uri.http("44.205.104.168", "raau/publication/create"));
-      rs.fields['session'] = json[0]['session'];
-      rs.fields['description'] = _description.text;
-      rs.files.add(await http.MultipartFile.fromPath('package', image!.path));
-      rs = await rs.send();
-      rs = rs.body;
+      try {
+        var req = http.MultipartRequest(
+            'POST', Uri.parse(ManagerHttp.url + "publication/create"));
+        req.files.add(await http.MultipartFile.fromPath('file', image!.path));
+        req.fields['session'] = json[0]['session'];
+        req.fields['description'] = _description.text;
+        var res = await http.Response.fromStream(await req.send());
+        var pos_index = res.body.indexOf("{");
+        rs = jsonDecode(res.body.substring(pos_index, res.body.length));
+      } catch (error) {
+        rs = null;
+      }
     }
     setState(() {
-      message = rs.toString();
+      if (rs != null && rs['session']) {
+        message = (rs['status'] ?? false)
+            ? "Pulicado con exito!!!"
+            : "Error en el servidor";
+      } else {
+        message = "Vuelve a iniciar sesión";
+      }
+      image = null;
+      _description.text = "";
     });
   }
 }

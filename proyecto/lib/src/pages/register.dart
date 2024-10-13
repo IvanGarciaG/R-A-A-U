@@ -10,6 +10,7 @@ class PageRegister extends StatefulWidget {
 }
 
 class _register extends State<PageRegister> {
+  var message = null;
   @override
   Widget build(BuildContext context) {
     Map<String, TextEditingController> controllers = {
@@ -19,7 +20,6 @@ class _register extends State<PageRegister> {
       'email': TextEditingController(),
       'password': TextEditingController()
     };
-
     return SafeArea(
       child: Scaffold(
         body: Center(
@@ -53,11 +53,16 @@ class _register extends State<PageRegister> {
               SizedBox(
                 height: 15.0,
               ),
-              formWidget.btn_register(controllers),
+              Text(message ?? ""),
+              (message == "Registrandose...")
+                  ? Text("")
+                  : formWidget.btn_register(controllers, this),
               SizedBox(
                 height: 15.0,
               ),
-              formWidget.btn_page_login(controllers),
+              (message == "Registrandose...")
+                  ? Text("")
+                  : formWidget.btn_page_login(controllers),
               SizedBox(
                 height: 15.0,
               ),

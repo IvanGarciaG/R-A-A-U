@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:proyecto/libs/http.dart';
 import 'package:proyecto/libs/session.dart';
@@ -10,7 +12,8 @@ import 'package:proyecto/src/pages/register.dart';
 
 class formWidget {
 // boton de registrar (crear cuenta)
-  static Widget btn_register(Map<String, TextEditingController> controllers) {
+  static Widget btn_register(
+      Map<String, TextEditingController> controllers, page) {
     return StreamBuilder(
         builder: (BuildContext context, AsyncSnapshot snapshot) {
       return ElevatedButton(
@@ -27,14 +30,33 @@ class formWidget {
           style: ElevatedButton.styleFrom(
               backgroundColor: Colors.black, elevation: 10),
           onPressed: () async {
-            var rs = await ManagerHttp.post('user/register', {
-              'name': controllers['name']!.text,
-              'surname': controllers['surname']!.text,
-              'user': controllers['user']!.text,
-              'email': controllers['email']!.text,
-              'password': controllers['password']!.text
+            page.setState(() {
+              page.message = "Registrandose...";
             });
-            Navigator.of(context).pop();
+            var rs;
+            try {
+              rs = await ManagerHttp.post('user/register', {
+                'name': controllers['name']!.text,
+                'surname': controllers['surname']!.text,
+                'user': controllers['user']!.text,
+                'email': controllers['email']!.text,
+                'password': controllers['password']!.text
+              });
+            } catch (error) {
+              rs = null;
+            }
+            if (rs == null || rs['status'] ?? true) {
+              page.setState(() {
+                page.message = "Ya puedes inciar sesión";
+              });
+              Navigator.of(context).pop();
+            } else {
+              page.setState(() {
+                page.message = (rs['message'] ?? "") == ""
+                    ? "Error al registrarse, intente más tarde"
+                    : rs['message'];
+              });
+            }
           });
     });
   }
@@ -139,7 +161,8 @@ class formWidget {
   }
 
   // BOTONES DE  LOGIN //
-  static Widget btn_login(Map<String, TextEditingController> controllers) {
+  static Widget btn_login(
+      Map<String, TextEditingController> controllers, page) {
     return StreamBuilder(
         builder: (BuildContext context, AsyncSnapshot snapshot) {
       return ElevatedButton(
@@ -156,12 +179,29 @@ class formWidget {
           style: ElevatedButton.styleFrom(
               backgroundColor: Colors.black, elevation: 10),
           onPressed: () async {
-            var rs = await ManagerHttp.post('user/login', {
-              'user': controllers['user']!.text,
-              'password': controllers['password']!.text
+            page.setState(() {
+              page.message = "Iniciando sesión...";
             });
-            if (rs != null) {
-              if (rs['status']) {
+            var rs;
+            try {
+              rs = await ManagerHttp.post('user/login', {
+                'user': controllers['user']!.text,
+                'password': controllers['password']!.text
+              });
+            } catch (error) {
+              rs = null;
+            }
+            if (rs == null) {
+              page.setState(() {
+                page.message = (rs['message'] ?? "") == ""
+                    ? "Error al registrarse, intente más tarde"
+                    : rs['message'];
+              });
+            } else {
+              if (rs['status'] ?? false) {
+                page.setState(() {
+                  page.message = "Cargando...";
+                });
                 var user = rs['user'];
                 Session.add(new Session(
                     user['session'],
@@ -174,6 +214,10 @@ class formWidget {
                 Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) => pagePublication(),
                 ));
+              } else {
+                page.setState(() {
+                  page.message = "La contraseña y/o el usuario son errones";
+                });
               }
             }
           });

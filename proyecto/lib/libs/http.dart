@@ -77,7 +77,8 @@ class ManagerHttp {
       if (res == null) {
         return null;
       }
-      var json = jsonDecode(res.body);
+      var pos_index = res.body.indexOf("{");
+      var json = jsonDecode(res.body.substring(pos_index, res.body.length));
       return json;
     } catch (error) {
       return null;

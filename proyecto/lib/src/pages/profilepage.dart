@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:proyecto/libs/http.dart';
 
 import '../../libs/session.dart';
 import 'login_page.dart';
@@ -15,6 +16,12 @@ class profilepage extends StatelessWidget {
             future: obtenerSession(),
             builder: (context, AsyncSnapshot snapshot) {
               var session = snapshot.data[0];
+              if (session.length <= 0) {
+                Navigator.of(context).pop();
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => LoginPage(),
+                ));
+              }
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 55),
                 child: Column(
@@ -63,6 +70,8 @@ class profilepage extends StatelessWidget {
                           ),
                         ),
                         onPressed: () async {
+                          ManagerHttp.post("user/logout",
+                              {'session': session['session'] ?? ''});
                           await Session.delete();
                           Navigator.of(context).pop();
                           Navigator.of(context).push(MaterialPageRoute(
